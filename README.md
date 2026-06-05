@@ -1,10 +1,10 @@
-# 🎬 IMDb Movie Rating Scraper
+#  IMDb Movie Rating Scraper
 
 A Python-based automation tool that dynamically scrapes movie data from IMDb using Selenium and Chrome WebDriver. It retrieves movie details like title, release year, and IMDb rating from the **Top 250 Movies** list and saves them to a CSV file.
 
 ---
 
-## 📌 Project Description
+##  Project Description
 
 The **IMDb Movie Rating Scraper** automates browser actions to handle dynamic content loading on IMDb. The extracted data can be used for:
 - Movie trend analysis
@@ -14,7 +14,7 @@ The **IMDb Movie Rating Scraper** automates browser actions to handle dynamic co
 
 ---
 
-## ✨ Features
+##  Features
 
 - ✅ **Dynamic Movie Scraping** — Uses Selenium to load IMDb Top 250 page and extract full content
 - ✅ **Top Movie Rankings** — Scrapes movie name, year, and IMDb rating
@@ -25,7 +25,7 @@ The **IMDb Movie Rating Scraper** automates browser actions to handle dynamic co
 
 ---
 
-## 🛠️ Technologies Used
+##  Technologies Used
 
 | Technology | Purpose |
 |-----------|---------|
@@ -38,7 +38,7 @@ The **IMDb Movie Rating Scraper** automates browser actions to handle dynamic co
 
 ---
 
-## 📦 Installation
+##  Installation
 
 ### 1. Clone the Repository
 ```bash
@@ -53,7 +53,7 @@ pip install selenium webdriver-manager selenium-stealth pandas
 
 ---
 
-## ▶️ How to Run
+##  How to Run
 
 ```bash
 python imbd_scraper.py
@@ -63,7 +63,7 @@ Chrome will open automatically, navigate to IMDb, scrape all 250 movies, and clo
 
 ---
 
-## 📊 Output
+##  Output
 
 The script generates a CSV file `imdb_top250.csv` with the following columns:
 
@@ -77,7 +77,7 @@ The script generates a CSV file `imdb_top250.csv` with the following columns:
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 IMDb_movie_scraper/
@@ -89,7 +89,7 @@ IMDb_movie_scraper/
 
 ---
 
-## ⚙️ How It Works
+##  How It Works
 
 1. **Opens Chrome** automatically using Selenium
 2. **Visits IMDb homepage** first to avoid bot detection
@@ -101,7 +101,7 @@ IMDb_movie_scraper/
 
 ---
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 | Error | Fix |
 |-------|-----|
@@ -113,7 +113,7 @@ IMDb_movie_scraper/
 
 ---
 
-## 🚀 Future Enhancements
+##  Future Enhancements
 
 - [ ] Schedule daily scraping using Task Scheduler
 - [ ] Scrape individual movie pages for cast and genre
@@ -123,17 +123,17 @@ IMDb_movie_scraper/
 
 ---
 
-## 👨‍💻 Author
+##  Author
 
 **Prasanth**
 - GitHub: [@prasanth104069-dot](https://github.com/prasanth104069-dot)
 
 ---
 
-## 📄 License
+##  License
 
 This project is for educational and internship purposes only.
 
 ---
 
-⭐ If you found this project helpful, please give it a star!
+ If you found this project helpful, please give it a star!
