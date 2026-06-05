@@ -1,33 +1,23 @@
-"""
-IMDb Movie Rating Scraper
-Scrapes Top 250 movies from IMDb using Selenium and saves to CSV.
-"""
-
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium_stealth import stealth
 import pandas as pd
 import time
 import logging
 
-# ── Logging setup ─────────────────────────────────────────────────────────────
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
 def get_driver():
-    """Create and return a Chrome WebDriver instance."""
     options = Options()
     options.add_argument("--start-maximized")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument("--lang=en-US")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option("useAutomationExtension", False)
 
@@ -46,10 +36,6 @@ def get_driver():
 
 
 def scrape_imdb_top250():
-    """
-    Scrape IMDb Top 250 movies.
-    Returns a list of dicts with keys: rank, title, year, rating.
-    """
     url = "https://www.imdb.com/chart/top/"
     movies = []
 
@@ -57,28 +43,21 @@ def scrape_imdb_top250():
     try:
         logger.info("Opening IMDb homepage...")
         driver.get("https://www.imdb.com")
-        time.sleep(4)
+        time.sleep(5)
 
         logger.info("Navigating to Top 250...")
         driver.get(url)
-        time.sleep(10)
+        time.sleep(12)
 
-        # Scroll down to trigger lazy loading
-        for i in range(5):
+        # Scroll to load all movies
+        for i in range(8):
             driver.execute_script("window.scrollBy(0, 800)")
             time.sleep(1)
 
-        # Scroll back to top
         driver.execute_script("window.scrollTo(0, 0)")
         time.sleep(3)
 
-        # Wait for items to load
-        WebDriverWait(driver, 30).until(
-            EC.presence_of_element_located(
-                (By.CSS_SELECTOR, "li.ipc-metadata-list-summary-item")
-            )
-        )
-
+        # Try multiple selectors for movie items
         items = driver.find_elements(
             By.CSS_SELECTOR, "li.ipc-metadata-list-summary-item"
         )
@@ -86,18 +65,27 @@ def scrape_imdb_top250():
 
         for idx, item in enumerate(items, start=1):
             try:
-                # ── Title ──────────────────────────────────────────────────
-                title_el = item.find_element(
-                    By.CSS_SELECTOR, "h3.ipc-title__text"
-                )
-                raw_title = title_el.text.strip()
-                title = raw_title.split(". ", 1)[-1] if ". " in raw_title else raw_title
+                # Title — try multiple selectors
+                title = "N/A"
+                for selector in [
+                    "h3.ipc-title__text",
+                    "h3",
+                    ".ipc-title__text",
+                    "a.ipc-title-link-wrapper"
+                ]:
+                    try:
+                        el = item.find_element(By.CSS_SELECTOR, selector)
+                        raw = el.text.strip()
+                        if raw:
+                            title = raw.split(". ", 1)[-1] if ". " in raw else raw
+                            break
+                    except Exception:
+                        continue
 
-                # ── Year ───────────────────────────────────────────────────
+                # Year — from text lines
+                year = "N/A"
                 try:
-                    full_text = item.text
-                    lines = full_text.split('\n')
-                    year = "N/A"
+                    lines = item.text.split('\n')
                     for line in lines:
                         line = line.strip()
                         if len(line) >= 4 and line[:4].isdigit():
@@ -106,21 +94,28 @@ def scrape_imdb_top250():
                 except Exception:
                     year = "N/A"
 
-                # ── Rating ─────────────────────────────────────────────────
-                try:
-                    rating_el = item.find_element(
-                        By.CSS_SELECTOR, "span.ipc-rating-star--rating"
-                    )
-                    rating = rating_el.text.strip()
-                except Exception:
-                    rating = "N/A"
+                # Rating — try multiple selectors
+                rating = "N/A"
+                for selector in [
+                    "span.ipc-rating-star--rating",
+                    "span[class*='rating']",
+                    ".ipc-rating-star--rating"
+                ]:
+                    try:
+                        el = item.find_element(By.CSS_SELECTOR, selector)
+                        rating = el.text.strip()
+                        if rating:
+                            break
+                    except Exception:
+                        continue
 
-                movies.append({
-                    "rank":   idx,
-                    "title":  title,
-                    "year":   year,
-                    "rating": rating,
-                })
+                if title != "N/A":
+                    movies.append({
+                        "rank": idx,
+                        "title": title,
+                        "year": year,
+                        "rating": rating
+                    })
 
                 if idx % 50 == 0:
                     logger.info(f"Scraped {idx} / {len(items)}...")
@@ -136,16 +131,13 @@ def scrape_imdb_top250():
 
 
 def save_to_csv(movies, filename="imdb_top250.csv"):
-    """Save movie list to a CSV file."""
     df = pd.DataFrame(movies)
     df.to_csv(filename, index=False, encoding="utf-8-sig")
     logger.info(f"Saved {len(df)} movies to '{filename}'")
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     movies = scrape_imdb_top250()
-
     if movies:
         save_to_csv(movies)
         df = pd.DataFrame(movies)
